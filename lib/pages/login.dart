@@ -1,18 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:purga/providers/auth_provider.dart';
-import 'package:purga/viewmodel/login_view_model.dart';
 import 'package:purga/pages/register.dart';
 import 'package:purga/pages/verification.dart';
+import 'package:purga/services/authentification_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final LoginViewModel viewmodel =
-        LoginViewModel(Provider.of<AuthProvider>(context));
+  State<LoginPage> createState() => _LoginPageState();
+}
 
+class _LoginPageState extends State<LoginPage> {
+  String _phoneNumber = "";
+  bool _isLoading = false;
+  final _authService = AuthentificationService();
+
+  Future<void> _sendPhoneNumber() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _authService.sendPhoneNumber(_phoneNumber);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString("user_phone_number", _phoneNumber);
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => VerificationScreen()),
+      );
+    } catch (e) {
+      print(e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
@@ -93,7 +124,11 @@ class LoginPage extends StatelessWidget {
                         ),
                       ),
                       child: TextField(
-                        onChanged: viewmodel.onTextFieldChange,
+                        onChanged: (String value) {
+                          setState(() {
+                            _phoneNumber = value;
+                          });
+                        },
                         keyboardType: TextInputType.phone,
                         decoration: const InputDecoration(
                           border: InputBorder.none,
@@ -109,25 +144,27 @@ class LoginPage extends StatelessWidget {
               // Bouton "Se connecter"
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: viewmodel.onLoginTapped,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    backgroundColor:
-                        const Color(0xFF235F4E), // Couleur du bouton
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    "Se connecter",
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Inter_18pt',
-                        color: Colors.white),
-                  ),
-                ),
+                child: _isLoading
+                    ? CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: _sendPhoneNumber,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          backgroundColor:
+                              const Color(0xFF235F4E), // Couleur du bouton
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text(
+                          "Se connecter",
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Inter_18pt',
+                              color: Colors.white),
+                        ),
+                      ),
               ),
               const SizedBox(height: 20),
               // Texte pour créer un compte

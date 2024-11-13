@@ -1,12 +1,9 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:provider/provider.dart';
-import 'package:purga/providers/auth_provider.dart';
-import 'package:purga/services/navigation_service.dart';
-import 'package:purga/viewmodel/login_view_model.dart';
+import 'package:purga/services/authentification_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VerificationScreen extends StatefulWidget {
   const VerificationScreen({super.key});
@@ -18,11 +15,26 @@ class VerificationScreen extends StatefulWidget {
 class _VerificationScreenState extends State<VerificationScreen> {
   int _counter = 60;
   Timer? _timer;
+  final _authService = AuthentificationService();
+  String _optCode = "";
+  bool _isLoading = false;
+  String _phoneNumber = "";
 
   @override
   void initState() {
+    getPhoneNumber();
     super.initState();
     _startTimer();
+  }
+
+  Future<void> getPhoneNumber() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? phoneNumber = prefs.getString("user_phone_number");
+    if (phoneNumber != null) {
+      setState(() {
+        _phoneNumber = phoneNumber;
+      });
+    }
   }
 
   void _startTimer() {
@@ -37,6 +49,25 @@ class _VerificationScreenState extends State<VerificationScreen> {
     });
   }
 
+  Future<void> _verifyOptCode(String phoneNumber) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final token = await _authService.verifyOtpCode(phoneNumber, _optCode);
+      Navigator.of(context).pushReplacementNamed('/welcome');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.toString()),
+      ));
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -45,10 +76,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final LoginViewModel loginViewModel =
-        LoginViewModel(Provider.of<AuthProvider>(context));
-
-    final navigationService = Provider.of<NavigationService>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
@@ -56,7 +83,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            navigationService.goBack();
+            Navigator.of(context).pop();
           },
         ),
         backgroundColor: Colors.white,
@@ -79,7 +106,11 @@ class _VerificationScreenState extends State<VerificationScreen> {
               const SizedBox(height: 20),
               PinCodeTextField(
                 appContext: context,
-                onChanged: loginViewModel.onPingCodeChanged,
+                onChanged: (String value) {
+                  setState(() {
+                    _optCode = value;
+                  });
+                },
                 length: 4,
                 pinTheme: PinTheme(
                   shape: PinCodeFieldShape.box,
@@ -103,24 +134,24 @@ class _VerificationScreenState extends State<VerificationScreen> {
               // ),
               const SizedBox(height: 20),
               RichText(
-                text: const TextSpan(
+                text: TextSpan(
                   text: "Nous avons envoyé un code de vérification par ",
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontFamily: 'Inter_18pt',
                     fontWeight: FontWeight.bold,
                     color: Colors.black, // Couleur par défaut
                   ),
                   children: [
-                    TextSpan(
+                    const TextSpan(
                       text: "SMS",
                       style: TextStyle(
                         color: Color(0xFF235F4E), // Mot "SMS" en vert
                       ),
                     ),
                     TextSpan(
-                      text: " au numéro de téléphone +237 6*******99",
-                      style: TextStyle(
+                      text: " au numéro de téléphone +237 $_phoneNumber",
+                      style: const TextStyle(
                         color: Colors.black, // Retour à la couleur par défaut
                       ),
                     ),
@@ -137,10 +168,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
               ),
               const SizedBox(height: 5),
               TextButton(
-                onPressed: _counter <= 0? loginViewModel.login() : null,
-                child: const Text(
-                  "Ressayer dans 00:30",
-                  style: TextStyle(
+                onPressed: () {},
+                child: Text(
+                  "Ressayer dans 00:$_counter",
+                  style: const TextStyle(
                     fontSize: 18,
                     color: Color(0xFF235F4E),
                     fontWeight: FontWeight.bold,
@@ -150,18 +181,20 @@ class _VerificationScreenState extends State<VerificationScreen> {
               ),
               const SizedBox(height: 20),
               Center(
-                child: ElevatedButton(
-                  onPressed: loginViewModel.verificationOtpCode,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF235F4E),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 80, vertical: 15),
-                  ),
-                  child: const Text(
-                    "Vérifier",
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                ),
+                child: _isLoading
+                    ? CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: () => _verifyOptCode(_phoneNumber),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF235F4E),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 80, vertical: 15),
+                        ),
+                        child: const Text(
+                          "Vérifier",
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                      ),
               ),
               const SizedBox(height: 40),
             ],
