@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:purga/pages/start_screen.dart';
+//import 'package:purga/pages/start_screen.dart';
+import 'package:purga/pages/waste_management.dart';
 
 void main() async {
   runApp(
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const StartScreen(),
+      home: const MapScreen(),
     );
   }
 }

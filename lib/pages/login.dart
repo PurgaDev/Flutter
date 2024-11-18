@@ -25,11 +25,13 @@ class _LoginPageState extends State<LoginPage> {
       await _authService.sendPhoneNumber(_phoneNumber);
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString("user_phone_number", _phoneNumber);
+      // ignore: use_build_context_synchronously
       Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => VerificationScreen()),
+        MaterialPageRoute(builder: (_) => const VerificationScreen()),
       );
     } catch (e) {
       print(e.toString());
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.toString()),
@@ -56,8 +58,7 @@ class _LoginPageState extends State<LoginPage> {
               // Image en haut
               SizedBox(
                 height: 300,
-                child: Image.asset(
-                    'assets/login.jpeg'), // Assurez-vous d'avoir l'image dans votre dossier assets
+                child: Image.asset('assets/login.jpeg'),
               ),
               const SizedBox(height: 30),
               // Titre "Login"
@@ -145,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(
                 width: double.infinity,
                 child: _isLoading
-                    ? CircularProgressIndicator()
+                    ? const CircularProgressIndicator()
                     : ElevatedButton(
                         onPressed: _sendPhoneNumber,
                         style: ElevatedButton.styleFrom(
