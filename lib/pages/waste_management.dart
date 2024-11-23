@@ -15,6 +15,56 @@ class _MapScreenState extends State<MapScreen> {
   // Position initiale de la carte Google
   final LatLng _center = const LatLng(3.8480, 11.5021);
 
+  // Liste des points à afficher (dépôts simulés)
+  final List<LatLng> _depots = [
+    const LatLng(3.9480, 11.521),
+    const LatLng(3.8995, 11.5045),
+    const LatLng(3.8870, 11.4998),
+    const LatLng(3.8702, 11.5012),
+    const LatLng(3.8490, 11.5030),
+  ];
+
+  // Marqueurs à afficher sur la carte
+  final Set<Marker> _markers = {};
+
+  // Icône personnalisée
+  late BitmapDescriptor _binIcon;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCustomIcon();
+  }
+
+  // Charger l'icône personnalisée
+ void _loadCustomIcon() async {
+  // ignore: deprecated_member_use
+  _binIcon = await BitmapDescriptor.fromAssetImage(
+    const ImageConfiguration(size: Size(56, 56)),
+    'assets/icons8-trash-48.png', 
+  );
+  _loadMarkers(); // Charger les marqueurs une fois l'icône chargée
+  setState(() {});
+}
+
+  // Ajouter des marqueurs
+  void _loadMarkers() {
+    for (int i = 0; i < _depots.length; i++) {
+      _markers.add(
+        Marker(
+          markerId: MarkerId('depot_$i'),
+          position: _depots[i],
+          icon: _binIcon, // Utilisez l'icône personnalisée
+          infoWindow: InfoWindow(
+            title: 'Dépôt ${i + 1}', // Numérotation des dépôts
+            snippet: 'Latitude: ${_depots[i].latitude}, Longitude: ${_depots[i].longitude}',
+          ),
+        ),
+      );
+    }
+    setState(() {});
+  }
+
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
@@ -33,15 +83,14 @@ class _MapScreenState extends State<MapScreen> {
         titleSpacing: 16,
         title: Row(
           children: [
-            // Image de profil avec bordures noires
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.black, width: 1),
               ),
               child: const CircleAvatar(
-                backgroundImage: AssetImage(
-                    "assets/default-user.jpeg"), // Remplacez par votre image de profil
+                backgroundImage:
+                    AssetImage("assets/default-user.jpeg"), // Remplacez par votre image de profil
                 radius: 24,
               ),
             ),
@@ -79,10 +128,7 @@ class _MapScreenState extends State<MapScreen> {
       ),
       body: Column(
         children: [
-          // Espacement ajusté
           const SizedBox(height: 25),
-
-          // Barre de recherche avec largeur réduite
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 22.0),
             child: Container(
@@ -118,7 +164,6 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
           const SizedBox(height: 16),
-
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 22.0),
@@ -130,26 +175,13 @@ class _MapScreenState extends State<MapScreen> {
                     target: _center,
                     zoom: 14.0,
                   ),
+                  markers: _markers,
                 ),
               ),
             ),
           ),
         ],
       ),
-
-      // Bouton flottant
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 85), // Déplacé vers le haut
-        child: FloatingActionButton(
-          onPressed: () {
-            // Ajouter une action pour le bouton
-          },
-          backgroundColor: const Color(0xFF235F4E),
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
-      ),
-
-      // Barre de navigation inférieure
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -166,8 +198,7 @@ class _MapScreenState extends State<MapScreen> {
                         : Colors.black,
                   ),
                   if (_selectedIndex == 0)
-                    const SizedBox(
-                        height: 6), // Espacement entre l'icône et le point vert
+                    const SizedBox(height: 6),
                   if (_selectedIndex == 0)
                     const CircleAvatar(
                       radius: 3,
@@ -187,8 +218,7 @@ class _MapScreenState extends State<MapScreen> {
                         : Colors.black,
                   ),
                   if (_selectedIndex == 1)
-                    const SizedBox(
-                        height: 6), // Espacement entre l'icône et le point vert
+                    const SizedBox(height: 6),
                   if (_selectedIndex == 1)
                     const CircleAvatar(
                       radius: 3,
@@ -208,8 +238,7 @@ class _MapScreenState extends State<MapScreen> {
                         : Colors.black,
                   ),
                   if (_selectedIndex == 2)
-                    const SizedBox(
-                        height: 6), // Espacement entre l'icône et le point vert
+                    const SizedBox(height: 6),
                   if (_selectedIndex == 2)
                     const CircleAvatar(
                       radius: 3,

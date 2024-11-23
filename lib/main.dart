@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 //import 'package:purga/pages/start_screen.dart';
 import 'package:purga/pages/waste_management.dart';
+//import 'package:purga/pages/signal.dart';
 
 void main() async {
   runApp(

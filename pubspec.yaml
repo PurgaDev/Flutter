@@ -62,6 +62,8 @@ flutter:
     - assets/fonts/
     - assets/login.jpeg
     - assets/default-user.jpeg
+    - assets/icons8-trash-50.png
+    - assets/icons8-trash-48.png
 
   fonts:
     - family: KaushanScript
