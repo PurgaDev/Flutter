@@ -40,6 +40,7 @@ dependencies:
   pin_code_fields: ^8.0.1
   shared_preferences: ^2.3.3
   image_picker: ^1.1.2
+  readmore: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +65,7 @@ flutter:
     - images/im1.jpg
     - images/im2.jpg
     - images/im2.jpg
+    - assets/user_default.png
 
   fonts:
     - family: KaushanScript
