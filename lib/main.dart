@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:purga/pages/signalement_page.dart';
 import 'package:purga/pages/start_screen.dart';
 
 void main() async {
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const StartScreen(),
+      home: const SignalementPage(),
     );
   }
 }

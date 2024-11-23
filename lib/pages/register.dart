@@ -80,10 +80,10 @@ class _RegisterPageState extends State<RegisterPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Image
-              // SizedBox(
-              //   height: 100,
-              //   child: Image.asset('assets/login.jpeg'),
-              // ),
+              SizedBox(
+                height: 200,
+                child: Image.asset('assets/login.jpeg'),
+              ),
               const SizedBox(height: 50),
               // "Register"
               const Text(
@@ -95,7 +95,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 textAlign: TextAlign.left,
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 10),
               // "Nom"
               const Align(
                 alignment: Alignment.centerLeft,
@@ -109,7 +109,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               // nom
               TextField(
                 onChanged: (String value) => setState(() => _firstName = value),
@@ -120,7 +120,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   hintText: 'Votre prenom',
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               // "Nom"
               const Align(
@@ -135,7 +135,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               // nom
               TextField(
                 onChanged: (String value) => setState(() => _lastName = value),
@@ -146,7 +146,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   hintText: 'Votre nom',
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               //"Numéro de téléphone"
               const Align(
@@ -161,7 +161,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               // numéro de téléphone
               Row(
                 children: [
@@ -206,7 +206,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 15),
               //"S'inscrire"
               SizedBox(
                 width: double.infinity,
@@ -241,6 +241,38 @@ class _RegisterPageState extends State<RegisterPage> {
                     ],
                   ),
                 ),
+              ),
+              const SizedBox(height: 10),
+              // Texte pour créer un compte
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Déjà enregistré?",
+                    style: TextStyle(
+                        color: Colors.black54,
+                        fontSize: 18,
+                        fontFamily: 'Inter_18pt',
+                        fontWeight: FontWeight.bold),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const RegisterPage()),
+                      );
+                    },
+                    child: const Text(
+                      "Se cnnecter...",
+                      style: TextStyle(
+                          color: Color(0xFF235F4E),
+                          fontSize: 16,
+                          fontFamily: 'Inter_18pt',
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

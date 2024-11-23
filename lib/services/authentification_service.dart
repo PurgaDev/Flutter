@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AuthentificationService {
-  final String baseUrl = 'http://192.168.1.134:8000/api';
+  final String baseUrl = 'http://37.60.244.227:8000/api/user';
 
   Future<bool> sendPhoneNumber(String phoneNumber) async {
     try {
