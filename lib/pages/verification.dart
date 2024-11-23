@@ -49,6 +49,30 @@ class _VerificationScreenState extends State<VerificationScreen> {
     });
   }
 
+  Future<void> _resendOptCode() async {
+    if (_counter != 0) return;
+    try {
+      await _authService.sendPhoneNumber(_phoneNumber);
+      setState(() {
+        _counter = 60;
+      });
+      _startTimer();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text("Code renvoyé"),
+        duration: const Duration(seconds: 3),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        showCloseIcon: true,
+      ));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.toString()),
+        duration: const Duration(seconds: 5),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        showCloseIcon: true,
+      ));
+    }
+  }
+
   Future<void> _verifyOptCode(String phoneNumber) async {
     setState(() {
       _isLoading = true;
@@ -56,10 +80,16 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
     try {
       final token = await _authService.verifyOtpCode(phoneNumber, _optCode);
-      Navigator.of(context).pushReplacementNamed('/welcome');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString("user_token", token);
+
+      // TODO:: rediriger vers la homepage.
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(e.toString()),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        duration: const Duration(seconds: 5),
+        showCloseIcon: true,
       ));
     } finally {
       setState(() {
@@ -168,7 +198,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               ),
               const SizedBox(height: 5),
               TextButton(
-                onPressed: () {},
+                onPressed: _resendOptCode,
                 child: Text(
                   "Ressayer dans 00:$_counter",
                   style: const TextStyle(

@@ -8,7 +8,7 @@ class AuthentificationService {
 
   Future<bool> sendPhoneNumber(String phoneNumber) async {
     try {
-      final response = await http.post(Uri.parse('$baseUrl/api/login/'),
+      final response = await http.post(Uri.parse('$baseUrl/login/'),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({'phone_number': '+237$phoneNumber'}));
 
@@ -25,7 +25,7 @@ class AuthentificationService {
   Future<String> verifyOtpCode(String phoneNumber, String otp) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/login/verification/'),
+        Uri.parse('$baseUrl/login/verification/'),
         headers: {'Content-Type': 'application/json'},
         body:
             json.encode({'phone_number': '+237$phoneNumber', 'otp_code': otp}),
@@ -38,6 +38,26 @@ class AuthentificationService {
       }
     } catch (e) {
       throw Exception("Erreur reseau: $e");
+    }
+  }
+
+  Future<bool> register(
+      String firstname, String lastname, String phoneNumber) async {
+    try {
+      final response = await http.post(Uri.parse('$baseUrl/register/'),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            'phone_number': phoneNumber,
+            'fisrt_name': firstname,
+            'last_name': lastname
+          }));
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        throw Exception(response.reasonPhrase);
+      }
+    } catch (e) {
+      throw Exception('Erreur reseau: $e');
     }
   }
 }
