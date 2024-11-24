@@ -50,5 +50,11 @@
 	<string>We need access to your camera to take pictures.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to save pictures.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Nous avons besoin de votre position pour améliorer l'expérience utilisateur.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Nous avons besoin de votre position en arrière-plan.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Nous avons besoin de votre position pour fournir des services pertinents.</string>
 </dict>
 </plist>

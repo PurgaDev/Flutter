@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:purga/pages/waste_management.dart';
+import 'package:purga/pages/base_layout.dart';
 import 'package:purga/services/authentification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -85,7 +85,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
       await prefs.setString("user_auth_token", token);
 
       Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const MapScreen()),
+        MaterialPageRoute(builder: (_) => BaseLayout()),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

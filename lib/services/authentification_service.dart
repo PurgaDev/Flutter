@@ -15,7 +15,7 @@ class AuthentificationService {
       if (response.statusCode == 200) {
         return true;
       } else {
-        throw Exception("Echec de l'envoie du numero");
+        throw Exception(response.reasonPhrase);
       }
     } catch (e) {
       throw Exception("Erreur reseau: $e");
@@ -41,10 +41,10 @@ class AuthentificationService {
           final data = json.decode(response.body);
           return data['access'];
         } else {
-          throw Exception("Echec de verification du code otp");
+          throw Exception(response.reasonPhrase);
         }
       } else {
-        throw Exception("Echec de verification du code otp");
+        throw Exception(response.reasonPhrase);
       }
     } catch (e) {
       throw Exception("Erreur reseau: $e");

@@ -1,7 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:purga/services/reporting_service.dart';
 import 'package:readmore/readmore.dart';
 
 class ReportingPage extends StatefulWidget {
@@ -14,6 +17,54 @@ class ReportingPage extends StatefulWidget {
 class _ReportingPageState extends State<ReportingPage> {
   File? _image;
   final ImagePicker _picker = ImagePicker();
+  final ReportingService reportingService = ReportingService();
+  LatLng? _location;
+  String _description = "";
+  bool isReportCreating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  Future<void> _checkPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error("Le service de localisation n'est pas activé.");
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error("Permission de localisation refusée.");
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error("Permission de localisation refusée définitivement.");
+    }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      await _checkPermission();
+      Position position = await Geolocator.getCurrentPosition();
+      setState(() {
+        _location = LatLng(position.latitude, position.longitude);
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().substring(8)),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          duration: const Duration(seconds: 5),
+          showCloseIcon: true,
+        ),
+      );
+    }
+  }
 
   Future<void> _takePhoto() async {
     final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
@@ -21,6 +72,38 @@ class _ReportingPageState extends State<ReportingPage> {
       setState(() {
         _image = File(photo.path);
       });
+    }
+  }
+
+  Future<void> _onTapedReporting() async {
+    if (_location != null && _image != null && _description.isNotEmpty) {
+      setState(() {
+        isReportCreating = true;
+      });
+      try {
+        String message = await reportingService.createReporting(
+            _description, _image!, _location!);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            duration: const  Duration(seconds: 5),
+            showCloseIcon: true,
+          ),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 5),
+            showCloseIcon: true,
+          ),
+        );
+      } finally {
+        isReportCreating = false;
+        Navigator.of(context).pop();
+      }
     }
   }
 
@@ -85,6 +168,7 @@ class _ReportingPageState extends State<ReportingPage> {
 
           // description
           TextField(
+            onChanged: (String value) => setState(() => _description = value),
             minLines: 4,
             maxLines: 10,
             decoration: InputDecoration(
@@ -118,7 +202,7 @@ class _ReportingPageState extends State<ReportingPage> {
                 ),
               ),
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: _onTapedReporting,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -126,7 +210,12 @@ class _ReportingPageState extends State<ReportingPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                icon: const Icon(Icons.report),
+                icon: isReportCreating
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      )
+                    : const Icon(Icons.report),
                 label: const Text(
                   "Signaler",
                   style: TextStyle(fontWeight: FontWeight.bold),
