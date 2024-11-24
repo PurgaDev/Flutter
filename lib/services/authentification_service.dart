@@ -4,7 +4,7 @@ import 'package:purga/model/server.dart';
 import 'package:http/http.dart' as http;
 
 class AuthentificationService {
-  final String baseUrl = server;
+  final String baseUrl = '$server/api/user';
 
   Future<bool> sendPhoneNumber(String phoneNumber) async {
     try {
@@ -31,8 +31,18 @@ class AuthentificationService {
             json.encode({'phone_number': '+237$phoneNumber', 'otp_code': otp}),
       );
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data['token'];
+        final response = await http.post(
+          Uri.parse('$baseUrl/token/'),
+          headers: {'Content-Type': 'application/json'},
+          body: json
+              .encode({'phone_number': '+237$phoneNumber', 'otp_code': otp}),
+        );
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          return data['access'];
+        } else {
+          throw Exception("Echec de verification du code otp");
+        }
       } else {
         throw Exception("Echec de verification du code otp");
       }

@@ -12,8 +12,6 @@ class ReportingPage extends StatefulWidget {
 }
 
 class _ReportingPageState extends State<ReportingPage> {
-  int _selectedIndex = 1;
-
   File? _image;
   final ImagePicker _picker = ImagePicker();
 
@@ -143,246 +141,110 @@ class _ReportingPageState extends State<ReportingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            // Image de profil avec bordures noires
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.black, width: 1),
-              ),
-              child: const CircleAvatar(
-                backgroundImage: AssetImage(
-                    "assets/user_default.png"), // Remplacez par votre image de profil
-                radius: 24,
-              ),
-            ),
-            const SizedBox(width: 10),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "John Doe",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  "+237 679078289",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            IconButton(
-              icon: const Icon(Icons.more_vert, color: Colors.black),
-              onPressed: () {
-                // Ajouter une action ici
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-              child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Mes signalement",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                      ),
+    return Column(
+      children: [
+        Expanded(
+            child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Mes signalement",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: createForm,
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: const Text("Signaler"),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: ListView.separated(
-                    itemBuilder: (context, index) {
-                      return Column(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(25),
-                            child: Image.asset(
-                              "images/im2.jpg",
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.primary,
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: const Text("Validé"),
-                              ),
-                              const Text(
-                                "__/ __/ __",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          ReadMoreText(
-                            "Flutter est un framework développé par Google. Il permet de créer des applications multiplateformes, "
-                            "avec une seule base de code, en utilisant le langage Dart. Flutter offre une grande flexibilité "
-                            "et des performances proches des applications natives. Ce texte illustre comment gérer du texte "
-                            "avec une option Lire plus dans Flutter.",
-                            trimLines: 3,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            trimCollapsedText: 'Lire plus',
-                            trimExpandedText: 'Lire moins',
-                            trimMode: TrimMode.Line,
-                            colorClickableText:
-                                Theme.of(context).colorScheme.primary,
-                          )
-                        ],
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: createForm,
                       );
                     },
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 20),
-                    itemCount: 5,
-                  ),
-                )
-              ],
-            ),
-          ))
-        ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-        ),
-        child: BottomNavigationBar(
-          items: [
-            BottomNavigationBarItem(
-              icon: Column(
-                children: [
-                  Icon(
-                    Icons.home,
-                    color: _selectedIndex == 0
-                        ? const Color(0xFF235F4E)
-                        : Colors.black,
-                  ),
-                  if (_selectedIndex == 0)
-                    const SizedBox(
-                        height: 6), // Espacement entre l'icône et le point vert
-                  if (_selectedIndex == 0)
-                    const CircleAvatar(
-                      radius: 3,
-                      backgroundColor: Color(0xFF235F4E),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
+                    child: const Text("Signaler"),
+                  )
                 ],
               ),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Column(
-                children: [
-                  Icon(
-                    Icons.list,
-                    color: _selectedIndex == 1
-                        ? const Color(0xFF235F4E)
-                        : Colors.black,
-                  ),
-                  if (_selectedIndex == 1)
-                    const SizedBox(
-                        height: 6), // Espacement entre l'icône et le point vert
-                  if (_selectedIndex == 1)
-                    const CircleAvatar(
-                      radius: 3,
-                      backgroundColor: Color(0xFF235F4E),
-                    ),
-                ],
-              ),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Column(
-                children: [
-                  Icon(
-                    Icons.account_circle,
-                    color: _selectedIndex == 2
-                        ? const Color(0xFF235F4E)
-                        : Colors.black,
-                  ),
-                  if (_selectedIndex == 2)
-                    const SizedBox(
-                        height: 6), // Espacement entre l'icône et le point vert
-                  if (_selectedIndex == 2)
-                    const CircleAvatar(
-                      radius: 3,
-                      backgroundColor: Color(0xFF235F4E),
-                    ),
-                ],
-              ),
-              label: '',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          selectedIconTheme: const IconThemeData(color: Color(0xFF235F4E)),
-          unselectedIconTheme: const IconThemeData(color: Colors.grey),
-        ),
-      ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: ListView.separated(
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(25),
+                          child: Image.asset(
+                            "images/im2.jpg",
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.onPrimary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: const Text("Validé"),
+                            ),
+                            const Text(
+                              "__/ __/ __",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        ReadMoreText(
+                          "Flutter est un framework développé par Google. Il permet de créer des applications multiplateformes, "
+                          "avec une seule base de code, en utilisant le langage Dart. Flutter offre une grande flexibilité "
+                          "et des performances proches des applications natives. Ce texte illustre comment gérer du texte "
+                          "avec une option Lire plus dans Flutter.",
+                          trimLines: 3,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          trimCollapsedText: 'Lire plus',
+                          trimExpandedText: 'Lire moins',
+                          trimMode: TrimMode.Line,
+                          colorClickableText:
+                              Theme.of(context).colorScheme.primary,
+                        )
+                      ],
+                    );
+                  },
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 20),
+                  itemCount: 5,
+                ),
+              )
+            ],
+          ),
+        ))
+      ],
     );
   }
 }

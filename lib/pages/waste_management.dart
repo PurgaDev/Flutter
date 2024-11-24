@@ -37,15 +37,15 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   // Charger l'icône personnalisée
- void _loadCustomIcon() async {
-  // ignore: deprecated_member_use
-  _binIcon = await BitmapDescriptor.fromAssetImage(
-    const ImageConfiguration(size: Size(56, 56)),
-    'assets/icons8-trash-48.png', 
-  );
-  _loadMarkers(); // Charger les marqueurs une fois l'icône chargée
-  setState(() {});
-}
+  void _loadCustomIcon() async {
+    // ignore: deprecated_member_use
+    _binIcon = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(56, 56)),
+      'assets/icons8-trash-48.png',
+    );
+    _loadMarkers(); // Charger les marqueurs une fois l'icône chargée
+    setState(() {});
+  }
 
   // Ajouter des marqueurs
   void _loadMarkers() {
@@ -57,7 +57,8 @@ class _MapScreenState extends State<MapScreen> {
           icon: _binIcon, // Utilisez l'icône personnalisée
           infoWindow: InfoWindow(
             title: 'Dépôt ${i + 1}', // Numérotation des dépôts
-            snippet: 'Latitude: ${_depots[i].latitude}, Longitude: ${_depots[i].longitude}',
+            snippet:
+                'Latitude: ${_depots[i].latitude}, Longitude: ${_depots[i].longitude}',
           ),
         ),
       );
@@ -69,198 +70,63 @@ class _MapScreenState extends State<MapScreen> {
     mapController = controller;
   }
 
-  int _selectedIndex = 0; // Index de la barre de navigation inférieure
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.black, width: 1),
-              ),
-              child: const CircleAvatar(
-                backgroundImage:
-                    AssetImage("assets/default-user.jpeg"), // Remplacez par votre image de profil
-                radius: 24,
-              ),
+    return Column(
+      children: [
+        const SizedBox(height: 25),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 22.0),
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 247, 243, 243),
+              borderRadius: BorderRadius.circular(25),
+              border: Border.all(color: const Color(0xFF235F4E), width: 1.5),
             ),
-            const SizedBox(width: 10),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  "John Doe",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black,
+                const Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Rechercher un dépot.....",
+                      hintStyle: TextStyle(fontSize: 14, color: Colors.black),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                    ),
                   ),
                 ),
-                SizedBox(height: 2),
-                Text(
-                  "+237 679078289",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
+                Container(
+                  height: 40,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF235F4E),
+                    borderRadius: BorderRadius.circular(25),
                   ),
+                  child: const Icon(Icons.search, color: Colors.white),
                 ),
               ],
             ),
-            const Spacer(),
-            IconButton(
-              icon: const Icon(Icons.more_vert, color: Colors.black),
-              onPressed: () {
-                // Ajouter une action ici
-              },
-            ),
-          ],
+          ),
         ),
-      ),
-      body: Column(
-        children: [
-          const SizedBox(height: 25),
-          Padding(
+        const SizedBox(height: 16),
+        Expanded(
+          child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 22.0),
-            child: Container(
-              height: 50,
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 247, 243, 243),
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(color: const Color(0xFF235F4E), width: 1.5),
-              ),
-              child: Row(
-                children: [
-                  const Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: "Rechercher un dépot.....",
-                        hintStyle: TextStyle(fontSize: 14, color: Colors.black),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF235F4E),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    child: const Icon(Icons.search, color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 22.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: GoogleMap(
-                  onMapCreated: _onMapCreated,
-                  initialCameraPosition: CameraPosition(
-                    target: _center,
-                    zoom: 14.0,
-                  ),
-                  markers: _markers,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: GoogleMap(
+                onMapCreated: _onMapCreated,
+                initialCameraPosition: CameraPosition(
+                  target: _center,
+                  zoom: 14.0,
                 ),
+                markers: _markers,
               ),
             ),
           ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
         ),
-        child: BottomNavigationBar(
-          items: [
-            BottomNavigationBarItem(
-              icon: Column(
-                children: [
-                  Icon(
-                    Icons.home,
-                    color: _selectedIndex == 0
-                        ? const Color(0xFF235F4E)
-                        : Colors.black,
-                  ),
-                  if (_selectedIndex == 0)
-                    const SizedBox(height: 6),
-                  if (_selectedIndex == 0)
-                    const CircleAvatar(
-                      radius: 3,
-                      backgroundColor: Color(0xFF235F4E),
-                    ),
-                ],
-              ),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Column(
-                children: [
-                  Icon(
-                    Icons.list,
-                    color: _selectedIndex == 1
-                        ? const Color(0xFF235F4E)
-                        : Colors.black,
-                  ),
-                  if (_selectedIndex == 1)
-                    const SizedBox(height: 6),
-                  if (_selectedIndex == 1)
-                    const CircleAvatar(
-                      radius: 3,
-                      backgroundColor: Color(0xFF235F4E),
-                    ),
-                ],
-              ),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Column(
-                children: [
-                  Icon(
-                    Icons.account_circle,
-                    color: _selectedIndex == 2
-                        ? const Color(0xFF235F4E)
-                        : Colors.black,
-                  ),
-                  if (_selectedIndex == 2)
-                    const SizedBox(height: 6),
-                  if (_selectedIndex == 2)
-                    const CircleAvatar(
-                      radius: 3,
-                      backgroundColor: Color(0xFF235F4E),
-                    ),
-                ],
-              ),
-              label: '',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          selectedIconTheme: const IconThemeData(color: Color(0xFF235F4E)),
-          unselectedIconTheme: const IconThemeData(color: Colors.grey),
-        ),
-      ),
+      ],
     );
   }
 }
