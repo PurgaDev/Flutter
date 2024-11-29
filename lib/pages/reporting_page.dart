@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:readmore/readmore.dart';
+import 'package:purga/pages/waste_management.dart';
 
 class ReportingPage extends StatefulWidget {
   const ReportingPage({super.key});
@@ -144,14 +145,13 @@ class _ReportingPageState extends State<ReportingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+ appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
         titleSpacing: 16,
         title: Row(
           children: [
-            // Image de profil avec bordures noires
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -159,7 +159,7 @@ class _ReportingPageState extends State<ReportingPage> {
               ),
               child: const CircleAvatar(
                 backgroundImage: AssetImage(
-                    "assets/user_default.png"), // Remplacez par votre image de profil
+                    "assets/default-user.jpeg"), // Remplacez par votre image de profil
                 radius: 24,
               ),
             ),
@@ -376,6 +376,14 @@ class _ReportingPageState extends State<ReportingPage> {
             setState(() {
               _selectedIndex = index;
             });
+            if (index == 0) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        const MapScreen()), // Redirige vers MapScreen
+              );
+            }
           },
           showSelectedLabels: false,
           showUnselectedLabels: false,

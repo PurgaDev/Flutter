@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:purga/pages/reporting_page.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -37,15 +38,15 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   // Charger l'icône personnalisée
- void _loadCustomIcon() async {
-  // ignore: deprecated_member_use
-  _binIcon = await BitmapDescriptor.fromAssetImage(
-    const ImageConfiguration(size: Size(56, 56)),
-    'assets/icons8-trash-48.png', 
-  );
-  _loadMarkers(); // Charger les marqueurs une fois l'icône chargée
-  setState(() {});
-}
+  void _loadCustomIcon() async {
+    // ignore: deprecated_member_use
+    _binIcon = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(56, 56)),
+      'assets/icons8-trash-48.png',
+    );
+    _loadMarkers(); // Charger les marqueurs une fois l'icône chargée
+    setState(() {});
+  }
 
   // Ajouter des marqueurs
   void _loadMarkers() {
@@ -57,7 +58,8 @@ class _MapScreenState extends State<MapScreen> {
           icon: _binIcon, // Utilisez l'icône personnalisée
           infoWindow: InfoWindow(
             title: 'Dépôt ${i + 1}', // Numérotation des dépôts
-            snippet: 'Latitude: ${_depots[i].latitude}, Longitude: ${_depots[i].longitude}',
+            snippet:
+                'Latitude: ${_depots[i].latitude}, Longitude: ${_depots[i].longitude}',
           ),
         ),
       );
@@ -89,8 +91,8 @@ class _MapScreenState extends State<MapScreen> {
                 border: Border.all(color: Colors.black, width: 1),
               ),
               child: const CircleAvatar(
-                backgroundImage:
-                    AssetImage("assets/default-user.jpeg"), // Remplacez par votre image de profil
+                backgroundImage: AssetImage(
+                    "assets/default-user.jpeg"), // Remplacez par votre image de profil
                 radius: 24,
               ),
             ),
@@ -197,8 +199,7 @@ class _MapScreenState extends State<MapScreen> {
                         ? const Color(0xFF235F4E)
                         : Colors.black,
                   ),
-                  if (_selectedIndex == 0)
-                    const SizedBox(height: 6),
+                  if (_selectedIndex == 0) const SizedBox(height: 6),
                   if (_selectedIndex == 0)
                     const CircleAvatar(
                       radius: 3,
@@ -209,16 +210,17 @@ class _MapScreenState extends State<MapScreen> {
               label: '',
             ),
             BottomNavigationBarItem(
+              
               icon: Column(
                 children: [
                   Icon(
                     Icons.list,
+                    
                     color: _selectedIndex == 1
                         ? const Color(0xFF235F4E)
                         : Colors.black,
                   ),
-                  if (_selectedIndex == 1)
-                    const SizedBox(height: 6),
+                  if (_selectedIndex == 1) const SizedBox(height: 6),
                   if (_selectedIndex == 1)
                     const CircleAvatar(
                       radius: 3,
@@ -237,8 +239,7 @@ class _MapScreenState extends State<MapScreen> {
                         ? const Color(0xFF235F4E)
                         : Colors.black,
                   ),
-                  if (_selectedIndex == 2)
-                    const SizedBox(height: 6),
+                  if (_selectedIndex == 2) const SizedBox(height: 6),
                   if (_selectedIndex == 2)
                     const CircleAvatar(
                       radius: 3,
@@ -254,6 +255,12 @@ class _MapScreenState extends State<MapScreen> {
             setState(() {
               _selectedIndex = index;
             });
+            if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ReportingPage()), // Redirige vers ReportPage
+            );
+          }
           },
           showSelectedLabels: false,
           showUnselectedLabels: false,
