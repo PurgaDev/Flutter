@@ -6,7 +6,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:purga/services/reporting_service.dart';
 import 'package:readmore/readmore.dart';
-import 'package:purga/pages/waste_management.dart';
 
 class ReportingPage extends StatefulWidget {
   const ReportingPage({super.key});
