@@ -8,6 +8,8 @@ import 'package:purga/pages/profile.dart';
 import 'package:http/http.dart' as http;
 import 'package:purga/model/server.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:purga/pages/messages.dart';
+
 
 class BaseLayout extends StatefulWidget {
   const BaseLayout({super.key});
@@ -163,7 +165,11 @@ class _BaseLayoutState extends State<BaseLayout> {
                   IconButton(
                     icon: const Icon(Icons.more_vert, color: Colors.black),
                     onPressed: () {
-                      // Ajouter une action ici
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MessagePage()),
+                      );
                     },
                   ),
                 ],
