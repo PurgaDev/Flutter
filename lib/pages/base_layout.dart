@@ -25,14 +25,43 @@ class _BaseLayoutState extends State<BaseLayout> {
     const ProfilePage(),
   ];
 
-  User? user;
+  User? user; // Contiendra les informations utilisateur
 
   @override
   void initState() {
     super.initState();
-    fetchUserData();
+    loadInitialData(); // Charger les données utilisateur localement ou via API
   }
 
+  /// Sauvegarde les données utilisateur dans SharedPreferences
+  Future<void> saveUserData(Map<String, dynamic> userData) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_data', jsonEncode(userData));
+  }
+
+  /// Charge les données utilisateur à partir de SharedPreferences
+  Future<Map<String, dynamic>?> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? userDataString = prefs.getString('user_data');
+    if (userDataString != null) {
+      return jsonDecode(userDataString);
+    }
+    return null; // Retourne null si aucune donnée n'est sauvegardée
+  }
+
+  /// Initialise les données utilisateur (locale ou via API)
+  Future<void> loadInitialData() async {
+    final cachedData = await loadUserData(); // Charge depuis SharedPreferences
+    if (cachedData != null) {
+      setState(() {
+        user = User.fromJson(cachedData); // Initialise les données avec le cache
+      });
+    } else {
+      await fetchUserData(); // Appelle l'API si pas de cache disponible
+    }
+  }
+
+  /// Récupère les données utilisateur depuis l'API et les sauvegarde localement
   Future<void> fetchUserData() async {
     final String apiUrl = '$server/api/user/';
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -53,8 +82,9 @@ class _BaseLayoutState extends State<BaseLayout> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
         setState(() {
-          user = User.fromJson(data);
+          user = User.fromJson(data); // Mettre à jour l'état local
         });
+        await saveUserData(data); // Sauvegarder dans SharedPreferences
       } else {
         print("Erreur: ${response.statusCode}");
       }
@@ -63,6 +93,7 @@ class _BaseLayoutState extends State<BaseLayout> {
     }
   }
 
+  /// Change d'onglet dans le BottomNavigationBar
   void _onTabTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -85,57 +116,59 @@ class _BaseLayoutState extends State<BaseLayout> {
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            // Image de profil avec bordures noires
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.black, width: 1),
-              ),
-              child: const CircleAvatar(
-                backgroundImage: AssetImage(
-                    "assets/user_default.png"), // Remplacez par votre image de profil
-                radius: 24,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  user?.firstName ?? "Chargement...",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black,
+      appBar: _selectedIndex == 2
+          ? null
+          : AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 16,
+              title: Row(
+                children: [
+                  // Image de profil avec bordures noires
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.black, width: 1),
+                    ),
+                    child: const CircleAvatar(
+                      backgroundImage: AssetImage(
+                          "assets/user_default.png"), // Remplacez par votre image de profil
+                      radius: 24,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  user?.phoneNumber ?? "",
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user?.firstName ?? "Chargement...",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        user?.phoneNumber ?? "",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.more_vert, color: Colors.black),
+                    onPressed: () {
+                      // Ajouter une action ici
+                    },
+                  ),
+                ],
+              ),
             ),
-            const Spacer(),
-            IconButton(
-              icon: const Icon(Icons.more_vert, color: Colors.black),
-              onPressed: () {
-                // Ajouter une action ici
-              },
-            ),
-          ],
-        ),
-      ),
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:purga/pages/verification.dart';
 import 'package:purga/services/authentification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:purga/pages/login.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -260,7 +261,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const RegisterPage()),
+                            builder: (context) => const LoginPage()),
                       );
                     },
                     child: const Text(
