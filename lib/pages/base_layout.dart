@@ -1,6 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:purga/model/user.dart';
 import 'package:purga/pages/reporting_page.dart';
 import 'package:purga/pages/waste_management.dart';
+import 'package:purga/pages/profile.dart';
+import 'package:http/http.dart' as http;
+import 'package:purga/model/server.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BaseLayout extends StatefulWidget {
   const BaseLayout({super.key});
@@ -11,13 +18,50 @@ class BaseLayout extends StatefulWidget {
 
 class _BaseLayoutState extends State<BaseLayout> {
   int _selectedIndex = 0;
-
   final PageController _pageController = PageController();
-
   final List<Widget> _pages = [
-    MapScreen(),
-    ReportingPage(),
+    const MapScreen(),
+    const ReportingPage(),
+    const ProfilePage(),
   ];
+
+  User? user;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  Future<void> fetchUserData() async {
+    final String apiUrl = '$server/api/user/';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    try {
+      final String? authToken = prefs.getString("user_auth_token");
+      if (authToken == null || authToken.isEmpty) {
+        throw Exception("Vous devez vous authentifier");
+      }
+
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        setState(() {
+          user = User.fromJson(data);
+        });
+      } else {
+        print("Erreur: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Erreur lors de la récupération des données utilisateur: $e");
+    }
+  }
 
   void _onTabTapped(int index) {
     setState(() {
@@ -61,21 +105,21 @@ class _BaseLayoutState extends State<BaseLayout> {
               ),
             ),
             const SizedBox(width: 10),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "John Doe",
-                  style: TextStyle(
+                  user?.firstName ?? "Chargement...",
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                     color: Colors.black,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  "+237 679078289",
-                  style: TextStyle(
+                  user?.phoneNumber ?? "",
+                  style: const TextStyle(
                     fontSize: 12,
                     color: Colors.grey,
                   ),
@@ -113,9 +157,7 @@ class _BaseLayoutState extends State<BaseLayout> {
                         ? const Color(0xFF235F4E)
                         : Colors.black,
                   ),
-                  if (_selectedIndex == 0)
-                    const SizedBox(
-                        height: 6), // Espacement entre l'icône et le point vert
+                  if (_selectedIndex == 0) const SizedBox(height: 6),
                   if (_selectedIndex == 0)
                     const CircleAvatar(
                       radius: 3,
@@ -135,9 +177,7 @@ class _BaseLayoutState extends State<BaseLayout> {
                         ? const Color(0xFF235F4E)
                         : Colors.black,
                   ),
-                  if (_selectedIndex == 1)
-                    const SizedBox(
-                        height: 6), // Espacement entre l'icône et le point vert
+                  if (_selectedIndex == 1) const SizedBox(height: 6),
                   if (_selectedIndex == 1)
                     const CircleAvatar(
                       radius: 3,
@@ -157,9 +197,7 @@ class _BaseLayoutState extends State<BaseLayout> {
                         ? const Color(0xFF235F4E)
                         : Colors.black,
                   ),
-                  if (_selectedIndex == 2)
-                    const SizedBox(
-                        height: 6), // Espacement entre l'icône et le point vert
+                  if (_selectedIndex == 2) const SizedBox(height: 6),
                   if (_selectedIndex == 2)
                     const CircleAvatar(
                       radius: 3,

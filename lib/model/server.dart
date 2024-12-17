@@ -1,1 +1,1 @@
-String server = 'http://37.60.244.227:8000';
+String server = 'http://104.198.60.144';

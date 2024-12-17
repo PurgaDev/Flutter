@@ -147,29 +147,56 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 30),
               // Bouton "Se connecter"
               SizedBox(
-                width: double.infinity,
-                child: _isLoading
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        onPressed: _sendPhoneNumber,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          backgroundColor:
-                              const Color(0xFF235F4E), // Couleur du bouton
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          "Se connecter",
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Inter_18pt',
-                              color: Colors.white),
-                        ),
-                      ),
-              ),
+  width: double.infinity,
+  child: _isLoading
+      ? const Center(
+          child: CircularProgressIndicator(),
+        )
+      : ElevatedButton(
+          onPressed: () async {
+            setState(() {
+              _isLoading = true; // Affiche le loader
+            });
+            
+            try {
+              // Appel de la fonction _sendPhoneNumber
+              await _sendPhoneNumber();
+
+              // Si tout s'est bien passé, on passe à la page RegisterPage
+              Navigator.push(
+                // ignore: use_build_context_synchronously
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const VerificationScreen(),
+                ),
+              );
+            } catch (e) {
+              print("Erreur : $e");
+            } finally {
+              setState(() {
+                _isLoading = false; // Cache le loader
+              });
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            backgroundColor: const Color(0xFF235F4E), // Couleur du bouton
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          child: const Text(
+            "Se connecter",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Inter_18pt',
+              color: Colors.white,
+            ),
+          ),
+        ),
+),
+
               const SizedBox(height: 20),
               // Texte pour créer un compte
               Row(

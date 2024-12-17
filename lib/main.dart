@@ -23,13 +23,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Purga',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF235F4E)),
-        useMaterial3: true,
-      ),
-      debugShowCheckedModeBanner: false,
-      home: isAuthenticated ? BaseLayout() : StartScreen(),
-    );
+        title: 'Purga',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF235F4E)),
+          useMaterial3: true,
+        ),
+        debugShowCheckedModeBanner: false,
+        home: isAuthenticated? const BaseLayout(): const StartScreen());
   }
 }
