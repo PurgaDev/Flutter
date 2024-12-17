@@ -17,7 +17,7 @@ class ReportingService {
     try {
       final String? authToken = prefs.getString("user_auth_token");
       if (authToken == null || authToken.isEmpty) {
-        throw Exception("Vous devez vous authentifiez");
+        throw Exception("Vous devez vous authentifier");
       }
 
       final request = http.MultipartRequest(
