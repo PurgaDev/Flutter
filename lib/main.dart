@@ -29,6 +29,6 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         debugShowCheckedModeBanner: false,
-        home: isAuthenticated? const BaseLayout(): const StartScreen());
+        home: isAuthenticated ? const BaseLayout() : const StartScreen());
   }
 }

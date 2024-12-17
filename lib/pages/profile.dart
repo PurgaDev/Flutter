@@ -134,136 +134,134 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
-
-      body: SingleChildScrollView(
-      child: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : Column(
-              children: [
-                // En-tête avec fond vert et bouton de déconnexion
-                Container(
-                  height: 200,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF235F4E),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(25),
-                      bottomRight: Radius.circular(25),
-                    ),
-                  ),
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 20, right: 20),
-                          child: InkWell(
-                            onTap: logoutUser,
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.logout, color: Colors.white),
-                                SizedBox(width: 5),
-                                Text(
-                                  "Logout",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+        backgroundColor: Colors.white,
+        resizeToAvoidBottomInset: true,
+        body: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Column(
+                  children: [
+                    // En-tête avec fond vert et bouton de déconnexion
+                    Container(
+                      height: 200,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF235F4E),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(25),
+                          bottomRight: Radius.circular(25),
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 40, right: 30),
+                              child: InkWell(
+                                onTap: logoutUser,
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.logout, color: Colors.white),
+                                    SizedBox(width: 5),
+                                    Text(
+                                      "Logout",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-
-                // Photo de profil avec crayon de modification
-                Transform.translate(
-                  offset: const Offset(0, -50),
-                  child: Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      CircleAvatar(
-                        radius: 95,
-                        backgroundColor: Colors.grey.shade300,
-                        child: Icon(
-                          Icons.person,
-                          size: 190,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                              color: const Color(0xFF235F4E), width: 2),
-                        ),
-                        child: const Icon(
-                          Icons.edit,
-                          size: 20,
-                          color: Color(0xFF235F4E),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Nom et coordonnées (sans l'email)
-                Text(
-                  "${_userData['first_name'] ?? ''} ${_userData['last_name'] ?? ''}",
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _userData['phone_number'] ?? '',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
-                ),
-
-                // Texte descriptif
-                const SizedBox(height: 50),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                    "Une route propre ne dépend pas seulement de l'éfficacité su service de nettoyage, mais de l'éducation des personnes qui passent par là.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                      height: 1.5,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30),
-                  child: Text(
-                    "Pardon ne faites pas comme Dilane ",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                      height: 1.5,
+
+                    // Photo de profil avec crayon de modification
+                    Transform.translate(
+                      offset: const Offset(0, -50),
+                      child: Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          CircleAvatar(
+                            radius: 95,
+                            backgroundColor: Colors.grey.shade300,
+                            child: Icon(
+                              Icons.person,
+                              size: 190,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                  color: const Color(0xFF235F4E), width: 2),
+                            ),
+                            child: const Icon(
+                              Icons.edit,
+                              size: 20,
+                              color: Color(0xFF235F4E),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+
+                    // Nom et coordonnées (sans l'email)
+                    Text(
+                      "${_userData['first_name'] ?? ''} ${_userData['last_name'] ?? ''}",
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _userData['phone_number'] ?? '',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                    ),
+
+                    // Texte descriptif
+                    const SizedBox(height: 50),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 24),
+                      child: Text(
+                        "Une route propre ne dépend pas seulement de l'éfficacité su service de nettoyage, mais de l'éducation des personnes qui passent par là.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black54,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 30),
+                      child: Text(
+                        "Pardon ne faites pas comme Dilane ",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black54,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-    )
-    );
+        );
   }
 }
