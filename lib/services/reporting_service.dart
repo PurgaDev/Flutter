@@ -4,10 +4,12 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:purga/model/server.dart';
+import 'package:purga/services/authentification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ReportingService {
   final String baseUrl = "$server/api/reporting";
+  final AuthentificationService authService = AuthentificationService();
 
   Future<String> createReporting(
       String description, File image, LatLng location) async {
@@ -34,21 +36,56 @@ class ReportingService {
       request.files.add(await http.MultipartFile.fromPath('image', image.path));
       final response = await request.send();
       if (response.statusCode == 201) {
+        // final data = json.decode(await response.stream.bytesToString());
         return "Signalement pris en compte.";
       } else if (response.statusCode == 400) {
         final data = json.decode(await response.stream.bytesToString());
-        if (data['image']) {
-          throw Exception(data['image'][0]);
-        }
-        if (data['message']) {
+        print("Données reçues : $data");
+        if (data.containsKey('message')) {
           throw Exception(data['message']);
         }
+        if (data.containsKey('image') && data['image'] != null) {
+          throw Exception(data['image'][0]);
+        }
+      } else if (response.statusCode == 401) {
+        authService.refreshToken();
+        return await createReporting(description, image, location);
+      } else {
+        throw Exception(response.reasonPhrase);
+      }
+    } catch (e) {
+      print(e);
+      throw Exception("$e");
+    }
+    return "";
+  }
+
+  Future<List<dynamic>?> getReportingList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      final String? authToken = prefs.getString("user_auth_token");
+      if (authToken == null || authToken.isEmpty) {
+        throw Exception("Vous devez vous authentifiez");
+      }
+      String uri = "$baseUrl/list/";
+      final response = await http.get(
+        Uri.parse(uri),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+          'Content-Type': 'application/json'
+        },
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return List.of(data);
+      } else if (response.statusCode == 401) {
+        authService.refreshToken();
+        return await getReportingList();
       } else {
         throw Exception(response.reasonPhrase);
       }
     } catch (e) {
       throw Exception("Erreur reseau: $e");
     }
-    return "";
   }
 }

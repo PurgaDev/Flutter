@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:purga/model/server.dart';
 import 'package:purga/services/reporting_service.dart';
 import 'package:readmore/readmore.dart';
 
@@ -21,11 +22,28 @@ class _ReportingPageState extends State<ReportingPage> {
   LatLng? _location;
   String _description = "";
   bool isReportCreating = false;
+  List<dynamic>? _reportings = [];
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    reportingService.getReportingList().then((List<dynamic>? reportings) {
+      if (reportings != null) {
+        setState(() {
+          _reportings = reportings;
+        });
+      }
+    }).catchError((err) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(err.toString().substring(8)),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          duration: const Duration(seconds: 5),
+          showCloseIcon: true,
+        ),
+      );
+    });
   }
 
   Future<void> _checkPermission() async {
@@ -67,7 +85,10 @@ class _ReportingPageState extends State<ReportingPage> {
   }
 
   Future<void> _takePhoto() async {
-    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+    final XFile? photo = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 100,
+    );
     if (photo != null) {
       setState(() {
         _image = File(photo.path);
@@ -84,13 +105,18 @@ class _ReportingPageState extends State<ReportingPage> {
         String message = await reportingService.createReporting(
             _description, _image!, _location!);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            duration: const  Duration(seconds: 5),
-            showCloseIcon: true,
-          ),
-        );
+        if (message != "") {
+          // setState(() {
+          //   _reportings!.add(data['reporting']);
+          // });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              duration: const Duration(seconds: 5),
+              showCloseIcon: true,
+            ),
+          );
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -268,66 +294,99 @@ class _ReportingPageState extends State<ReportingPage> {
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: ListView.separated(
-                  itemBuilder: (context, index) {
-                    return Column(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(25),
-                          child: Image.asset(
-                            "images/im2.jpg",
-                          ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: ListView.separated(
+                    itemBuilder: (context, index) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              blurRadius: 20,
+                              offset: const Offset(-2, 4),
+                            )
+                          ],
                         ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
                           children: [
-                            ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.onPrimary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
+                            ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(20),
+                                  topRight: Radius.circular(20)),
+                              child: Image.network(
+                                "$server${_reportings![index]['image']}",
                               ),
-                              child: const Text("Validé"),
                             ),
-                            const Text(
-                              "__/ __/ __",
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.bold,
+                            const SizedBox(height: 10),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {},
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.grey,
+                                          foregroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          _reportings![index]['validated']
+                                              ? 'Validé'
+                                              : 'Rejeté',
+                                        ),
+                                      ),
+                                      Text(
+                                        "__/ __/ __",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: _reportings![index]
+                                                  ['validated']
+                                              ? Colors.grey
+                                              : Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  ReadMoreText(
+                                    _reportings![index]['description'],
+                                    trimLines: 3,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    trimCollapsedText: 'Lire plus',
+                                    trimExpandedText: 'Lire moins',
+                                    trimMode: TrimMode.Line,
+                                    colorClickableText:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(height: 12)
+                                ],
                               ),
                             )
                           ],
                         ),
-                        const SizedBox(height: 10),
-                        ReadMoreText(
-                          "Flutter est un framework développé par Google. Il permet de créer des applications multiplateformes, "
-                          "avec une seule base de code, en utilisant le langage Dart. Flutter offre une grande flexibilité "
-                          "et des performances proches des applications natives. Ce texte illustre comment gérer du texte "
-                          "avec une option Lire plus dans Flutter.",
-                          trimLines: 3,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          trimCollapsedText: 'Lire plus',
-                          trimExpandedText: 'Lire moins',
-                          trimMode: TrimMode.Line,
-                          colorClickableText:
-                              Theme.of(context).colorScheme.primary,
-                        )
-                      ],
-                    );
-                  },
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 20),
-                  itemCount: 5,
+                      );
+                    },
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 40),
+                    itemCount: _reportings!.length,
+                  ),
                 ),
               )
             ],
