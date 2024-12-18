@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:purga/model/server.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthentificationService {
   final String baseUrl = '$server/api/user';
@@ -81,5 +82,21 @@ class AuthentificationService {
       print('Erreur réseau : $e');
       throw Exception("Erreur réseau : $e");
     }
+  }
+
+  Future<void> refreshToken() async {
+    String uri = "$baseUrl/token/refresh";
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      final response = await http.post(
+        Uri.parse(uri),
+        body: {"refresh": prefs.getString('auth_refresh_token')},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        await prefs.setString("user_auth_token", data['access']);
+      } else {}
+    } catch (e) {}
   }
 }
