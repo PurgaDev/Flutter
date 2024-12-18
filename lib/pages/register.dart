@@ -32,41 +32,51 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
-  void _register() async {
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-      if (_phoneNumber.trim() == "" ||
-          _firstName.trim() == "" ||
-          _lastName.trim() == "") {
-        throw Exception("Tous les champs sont obligatoire");
-      } else {
-        if (prefs != null) {
-          await _authService.register(_firstName, _lastName, _phoneNumber);
-          await _authService.sendPhoneNumber(_phoneNumber);
-          await prefs!.setString("user_phone_number", _phoneNumber);
-        } else {
-          throw Exception("Veuillez reeassayer.");
-        }
+ void _register() async {
+  try {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Validation des champs
+    if (_phoneNumber.trim().isEmpty ||
+        _firstName.trim().isEmpty ||
+        _lastName.trim().isEmpty) {
+      throw Exception("Tous les champs sont obligatoires.");
+    }
+
+    // Appel de la méthode d'enregistrement
+    if (prefs != null) {
+      final isSuccess = await _authService.register(_firstName, _lastName, _phoneNumber);
+      if (isSuccess) {
+        await prefs!.setString("user_phone_number", _phoneNumber);
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const VerificationScreen()),
         );
+      } else {
+        throw Exception("L'enregistrement a échoué.");
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.toString()),
-        duration: const Duration(seconds: 5),
-        showCloseIcon: true,
-        backgroundColor: Theme.of(context).colorScheme.error,
-      ));
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+    } else {
+      throw Exception("Impossible d'accéder aux préférences. Veuillez réessayer.");
     }
+  } catch (e) {
+    // Log de l'erreur dans la console pour débogage
+    print("Erreur lors de l'enregistrement : $e");
+
+    // Affichage de l'erreur dans l'interface utilisateur
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(e.toString()),
+      duration: const Duration(seconds: 5),
+      backgroundColor: Theme.of(context).colorScheme.error,
+    ));
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

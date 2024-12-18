@@ -54,20 +54,32 @@ class AuthentificationService {
   Future<bool> register(
       String firstname, String lastname, String phoneNumber) async {
     try {
-      final response = await http.post(Uri.parse('$baseUrl/register/'),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            'phone_number': phoneNumber,
-            'fisrt_name': firstname,
-            'last_name': lastname
-          }));
+      final url = Uri.parse('$baseUrl/register/');
+      final requestBody = {
+        'first_name': firstname,
+        'last_name': lastname,
+        'phone_number': phoneNumber,
+      };
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: jsonEncode(requestBody),
+      );
+
       if (response.statusCode == 200) {
+        print('Enregistrement réussi : ${response.body}');
         return true;
       } else {
-        throw Exception(response.reasonPhrase);
+        print('Erreur serveur : ${response.reasonPhrase}');
+        return false; // Retourne false en cas d'erreur serveur
       }
     } catch (e) {
-      throw Exception('Erreur reseau: $e');
+      print('Erreur réseau : $e');
+      throw Exception("Erreur réseau : $e");
     }
   }
 }

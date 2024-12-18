@@ -183,37 +183,19 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
 
                     // Photo de profil avec crayon de modification
-                    Transform.translate(
-                      offset: const Offset(0, -50),
-                      child: Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          CircleAvatar(
-                            radius: 95,
-                            backgroundColor: Colors.grey.shade300,
-                            child: Icon(
-                              Icons.person,
-                              size: 190,
-                              color: Colors.grey.shade600,
-                            ),
+                   Transform.translate(
+                        offset: const Offset(0, -50),
+                        child: CircleAvatar(
+                          radius: 95,
+                          backgroundColor: Colors.grey.shade300,
+                          child: Icon(
+                            Icons.person,
+                            size: 190,
+                            color: Colors.grey.shade600,
                           ),
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                  color: const Color(0xFF235F4E), width: 2),
-                            ),
-                            child: const Icon(
-                              Icons.edit,
-                              size: 20,
-                              color: Color(0xFF235F4E),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+
 
                     // Nom et coordonnées (sans l'email)
                     Text(
