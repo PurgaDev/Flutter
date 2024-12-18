@@ -10,7 +10,6 @@ import 'package:purga/model/server.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:purga/pages/messages.dart';
 
-
 class BaseLayout extends StatefulWidget {
   const BaseLayout({super.key});
 
@@ -56,7 +55,8 @@ class _BaseLayoutState extends State<BaseLayout> {
     final cachedData = await loadUserData(); // Charge depuis SharedPreferences
     if (cachedData != null) {
       setState(() {
-        user = User.fromJson(cachedData); // Initialise les données avec le cache
+        user =
+            User.fromJson(cachedData); // Initialise les données avec le cache
       });
     } else {
       await fetchUserData(); // Appelle l'API si pas de cache disponible
@@ -178,6 +178,7 @@ class _BaseLayoutState extends State<BaseLayout> {
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,
+        physics: const NeverScrollableScrollPhysics(),
         children: _pages,
       ),
       bottomNavigationBar: Container(
