@@ -22,6 +22,7 @@ class _ReportingPageState extends State<ReportingPage> {
   LatLng? _location;
   String _description = "";
   bool isReportCreating = false;
+  bool isLoading = true;
   List<dynamic>? _reportings = [];
 
   @override
@@ -43,6 +44,10 @@ class _ReportingPageState extends State<ReportingPage> {
           showCloseIcon: true,
         ),
       );
+    }).whenComplete(() {
+      setState(() {
+        isLoading = false;
+      });
     });
   }
 
@@ -87,7 +92,7 @@ class _ReportingPageState extends State<ReportingPage> {
   Future<void> _takePhoto() async {
     final XFile? photo = await _picker.pickImage(
       source: ImageSource.camera,
-      imageQuality: 100,
+      imageQuality: 50,
     );
     if (photo != null) {
       setState(() {
@@ -102,16 +107,16 @@ class _ReportingPageState extends State<ReportingPage> {
         isReportCreating = true;
       });
       try {
-        String message = await reportingService.createReporting(
+        Map? data = await reportingService.createReporting(
             _description, _image!, _location!);
 
-        if (message != "") {
-          // setState(() {
-          //   _reportings!.add(data['reporting']);
-          // });
+        if (data != null) {
+          setState(() {
+            _reportings!.add(data['reporting']);
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(message),
+              content: Text(data['message']),
               duration: const Duration(seconds: 5),
               showCloseIcon: true,
             ),
@@ -294,100 +299,124 @@ class _ReportingPageState extends State<ReportingPage> {
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: ListView.separated(
-                    itemBuilder: (context, index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.2),
-                              blurRadius: 20,
-                              offset: const Offset(-2, 4),
-                            )
-                          ],
+                child: isLoading
+                    ? const Center(
+                        child: SizedBox(
+                          height: 30,
+                          width: 30,
+                          child: CircularProgressIndicator(),
                         ),
-                        child: Column(
-                          children: [
-                            ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20)),
-                              child: Image.network(
-                                "$server${_reportings![index]['image']}",
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                      )
+                    : _reportings!.isEmpty
+                        ? const Center(
+                            child: Text("Vous n'avez pas de signalement"),
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: ListView.separated(
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.2),
+                                        blurRadius: 20,
+                                        offset: const Offset(-2, 4),
+                                      )
+                                    ],
+                                  ),
+                                  child: Column(
                                     children: [
-                                      ElevatedButton(
-                                        onPressed: () {},
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.grey,
-                                          foregroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          _reportings![index]['validated']
-                                              ? 'Validé'
-                                              : 'Rejeté',
+                                      ClipRRect(
+                                        borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(20),
+                                            topRight: Radius.circular(20)),
+                                        child: Image.network(
+                                          "$server${_reportings![index]['image']}",
                                         ),
                                       ),
-                                      Text(
-                                        "__/ __/ __",
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          color: _reportings![index]
-                                                  ['validated']
-                                              ? Colors.grey
-                                              : Colors.red,
-                                          fontWeight: FontWeight.bold,
+                                      const SizedBox(height: 10),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8),
+                                        child: Column(
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                ElevatedButton(
+                                                  onPressed: () {},
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        _reportings![index]
+                                                                ['validated']
+                                                            ? Colors.grey
+                                                            : const Color
+                                                                .fromARGB(255,
+                                                                255, 113, 113),
+                                                    foregroundColor:
+                                                        Theme.of(context)
+                                                            .colorScheme
+                                                            .onPrimary,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              45),
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    _reportings![index]
+                                                            ['validated']
+                                                        ? 'Validé'
+                                                        : 'Rejeté',
+                                                  ),
+                                                ),
+                                                const Text(
+                                                  "__/ __/ __",
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.grey,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                            const SizedBox(height: 10),
+                                            ReadMoreText(
+                                              _reportings![index]
+                                                  ['description'],
+                                              trimLines: 3,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                              trimCollapsedText: 'Lire plus',
+                                              trimExpandedText: 'Lire moins',
+                                              trimMode: TrimMode.Line,
+                                              colorClickableText:
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                            ),
+                                            const SizedBox(height: 12)
+                                          ],
                                         ),
                                       )
                                     ],
                                   ),
-                                  const SizedBox(height: 10),
-                                  ReadMoreText(
-                                    _reportings![index]['description'],
-                                    trimLines: 3,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                    trimCollapsedText: 'Lire plus',
-                                    trimExpandedText: 'Lire moins',
-                                    trimMode: TrimMode.Line,
-                                    colorClickableText:
-                                        Theme.of(context).colorScheme.primary,
-                                  ),
-                                  const SizedBox(height: 12)
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 40),
-                    itemCount: _reportings!.length,
-                  ),
-                ),
+                                );
+                              },
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 40),
+                              itemCount: _reportings!.length,
+                            ),
+                          ),
               )
             ],
           ),
