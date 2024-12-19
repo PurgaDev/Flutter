@@ -1,6 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:purga/services/deposit_service.dart'; 
+import 'package:purga/services/deposit_service.dart'; // Importation du service
+import 'dart:async';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -16,6 +18,7 @@ class _MapScreenState extends State<MapScreen> {
   final LatLng _center = const LatLng(3.8480, 11.5021);
 
   final Set<Marker> _markers = {};
+  final Set<Polyline> _polylines = {};
   late BitmapDescriptor _binIcon;
   bool _isLoading = true;
 
@@ -23,12 +26,11 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _loadCustomIcon();
-    _loadDeposits(); // Charger les dépôts depuis l'API
+    _loadDataBasedOnRole();
   }
 
   // Charger l'icône personnalisée
   void _loadCustomIcon() async {
-    // ignore: deprecated_member_use
     _binIcon = await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(56, 56)),
       'assets/icons8-trash-48.png',
@@ -36,8 +38,30 @@ class _MapScreenState extends State<MapScreen> {
     setState(() {});
   }
 
-  // Charger les dépôts depuis l'API et les ajouter comme marqueurs
-  void _loadDeposits() async {
+  // Charger les données en fonction du rôle de l'utilisateur
+  void _loadDataBasedOnRole() async {
+    try {
+      final role = await getUserRole();
+
+      if (role == 'citizen') {
+        await _loadDeposits();
+      } else if (role == 'driver') {
+        await _loadRoutes();
+      }
+    } catch (e) {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur : ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Charger les dépôts pour les citoyens
+  Future<void> _loadDeposits() async {
     try {
       final deposits = await fetchDeposits();
       for (var deposit in deposits) {
@@ -54,14 +78,24 @@ class _MapScreenState extends State<MapScreen> {
         );
       }
     } catch (e) {
-      // Gérer les erreurs
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: ${e.toString()}')),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      throw Exception('Impossible de charger les dépôts.');
+    }
+  }
+
+  // Charger les itinéraires pour les chauffeurs
+  Future<void> _loadRoutes() async {
+    try {
+      final routes = await fetchRoutes();
+      for (var route in routes) {
+        _polylines.add(Polyline(
+          polylineId: const PolylineId('route'),
+          points: route,
+          color: Colors.blue,
+          width: 5,
+        ));
+      }
+    } catch (e) {
+      throw Exception('Impossible de charger les itinéraires.');
     }
   }
 
@@ -134,6 +168,7 @@ class _MapScreenState extends State<MapScreen> {
             zoom: 14.0,
           ),
           markers: _markers,
+          polylines: _polylines,
         ),
       ),
     );
