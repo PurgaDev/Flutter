@@ -99,4 +99,26 @@ class AuthentificationService {
       } else {}
     } catch (e) {}
   }
+
+  Future<void> logoutUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? authToken = prefs.getString("user_auth_token");
+    final String apiUrl = "$server/api/user/logout/";
+
+    if (authToken == null) {
+      throw Exception("Vous devez vous authentifier.");
+    }
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {'Authorization': 'Bearer $authToken'},
+    );
+
+    if (response.statusCode == 200) {
+      await prefs.remove("user_auth_token");
+    } else {
+      throw Exception("Erreur lors de la déconnexion.");
+    }
+  }
+
 }

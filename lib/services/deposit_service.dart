@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:purga/model/server.dart';
+import 'package:purga/services/user_service.dart';
 
 // Modèle de dépôt
 class Deposit {
@@ -33,24 +35,18 @@ Future<List<Deposit>> fetchDeposits() async {
   final String url = '$server/api/deposit/read';
 
   try {
-    // Récupérer le token depuis SharedPreferences
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('user_auth_token');
-    print("voici le token \n");
-    print('Token récupéré : $token');
-    print("\nFin token");
 
     if (token == null || token.isEmpty) {
-      throw Exception(
-          'Token d\'authentification manquant. Veuillez vous reconnecter.');
+      throw Exception('Token d\'authentification manquant. Veuillez vous reconnecter.');
     }
 
-    // Effectuer la requête HTTP avec le token dans l'en-tête
     final response = await http.get(
       Uri.parse(url),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json', // Facultatif, selon l'API
+        'Content-Type': 'application/json',
       },
     );
 
@@ -58,11 +54,52 @@ Future<List<Deposit>> fetchDeposits() async {
       final List<dynamic> data = json.decode(response.body);
       return data.map((json) => Deposit.fromJson(json)).toList();
     } else {
-      throw Exception(
-          'Erreur ${response.statusCode} : ${response.reasonPhrase}');
+      throw Exception('Erreur ${response.statusCode} : ${response.reasonPhrase}');
     }
   } catch (e) {
     print('Erreur lors de la récupération des dépôts : $e');
     throw Exception('Impossible de charger les dépôts.');
+  }
+}
+
+// Fonction pour récupérer le rôle de l'utilisateur
+Future<String> getUserRole() async {
+  final userService = UserService();
+  final userData = await userService.loadUserData();
+  return userData?['role'] ?? 'citizen'; // Rôle par défaut
+}
+
+// Fonction pour récupérer les itinéraires optimisés pour les chauffeurs
+Future<List<List<LatLng>>> fetchRoutes() async {
+  final String url = '$server/api/deposit/optimize/';
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String? token = prefs.getString('user_auth_token');
+
+  if (token == null || token.isEmpty) {
+    throw Exception('Token d\'authentification manquant. Veuillez vous reconnecter.');
+  }
+
+  final response = await http.get(
+    Uri.parse(url),
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = json.decode(response.body);
+
+    List<List<LatLng>> routes = [];
+    for (var route in data) {
+      List<LatLng> points = (route['coordinates'] as List)
+          .map((point) => LatLng(point['lat'], point['lng']))
+          .toList();
+
+      routes.add(points);
+    }
+    return routes;
+  } else {
+    throw Exception('Erreur ${response.statusCode} : ${response.reasonPhrase}');
   }
 }
