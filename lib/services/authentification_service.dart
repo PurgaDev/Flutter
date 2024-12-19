@@ -15,7 +15,13 @@ class AuthentificationService {
 
       if (response.statusCode == 200) {
         return true;
-      } else {
+      }
+      else if (response.statusCode == 401) {
+        final AuthentificationService authService = AuthentificationService();
+        authService.refreshToken();
+        return await sendPhoneNumber(phoneNumber);
+      } 
+       else {
         throw Exception(response.reasonPhrase);
       }
     } catch (e) {
@@ -41,7 +47,13 @@ class AuthentificationService {
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           return data['access'];
-        } else {
+        }
+        else if (response.statusCode == 401) {
+        final AuthentificationService authService = AuthentificationService();
+        authService.refreshToken();
+        return await verifyOtpCode(phoneNumber,otp);
+      } 
+         else {
           throw Exception(response.reasonPhrase);
         }
       } else {
@@ -74,7 +86,13 @@ class AuthentificationService {
       if (response.statusCode == 200) {
         print('Enregistrement réussi : ${response.body}');
         return true;
-      } else {
+      } 
+      else if (response.statusCode == 401) {
+        final AuthentificationService authService = AuthentificationService();
+        authService.refreshToken();
+        return await register(firstname,lastname,phoneNumber);
+      } 
+      else {
         print('Erreur serveur : ${response.reasonPhrase}');
         return false; // Retourne false en cas d'erreur serveur
       }
@@ -96,7 +114,13 @@ class AuthentificationService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         await prefs.setString("user_auth_token", data['access']);
-      } else {}
+      } 
+      else if (response.statusCode == 401) {
+        final AuthentificationService authService = AuthentificationService();
+        authService.refreshToken();
+        return await refreshToken();
+      } 
+      else {}
     } catch (e) {}
   }
 }

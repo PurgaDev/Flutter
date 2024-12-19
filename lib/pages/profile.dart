@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:purga/services/authentification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:purga/model/server.dart';
 import 'package:purga/pages/login.dart';
@@ -76,7 +77,13 @@ class _ProfilePageState extends State<ProfilePage> {
           await saveUserData(data);
           _userData = data; // Stocker les données utilisateur
         });
-      } else {
+      } 
+      else if (response.statusCode == 401) {
+        final AuthentificationService authService = AuthentificationService();
+        authService.refreshToken();
+        return await loadInitialData();
+      } 
+      else {
         print("Erreur lors du chargement des données utilisateur.");
       }
     } catch (e) {
@@ -119,6 +126,10 @@ class _ProfilePageState extends State<ProfilePage> {
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );
+      } else if (response.statusCode == 401) {
+        final AuthentificationService authService = AuthentificationService();
+        authService.refreshToken();
+        return await logoutUser();
       } else {
         print("Erreur lors de la déconnexion.");
       }
@@ -134,116 +145,114 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        resizeToAvoidBottomInset: true,
-        body: _isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : Column(
-                  children: [
-                    // En-tête avec fond vert et bouton de déconnexion
-                    Container(
-                      height: 200,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF235F4E),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(25),
-                          bottomRight: Radius.circular(25),
-                        ),
-                      ),
-                      child: Stack(
-                        children: [
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 40, right: 30),
-                              child: InkWell(
-                                onTap: logoutUser,
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.logout, color: Colors.white),
-                                    SizedBox(width: 5),
-                                    Text(
-                                      "Logout",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
+      backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Column(
+              children: [
+                // En-tête avec fond vert et bouton de déconnexion
+                Container(
+                  height: 200,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF235F4E),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(25),
+                      bottomRight: Radius.circular(25),
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 40, right: 30),
+                          child: InkWell(
+                            onTap: logoutUser,
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.logout, color: Colors.white),
+                                SizedBox(width: 5),
+                                Text(
+                                  "Logout",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-
-                    // Photo de profil avec crayon de modification
-                   Transform.translate(
-                        offset: const Offset(0, -50),
-                        child: CircleAvatar(
-                          radius: 95,
-                          backgroundColor: Colors.grey.shade300,
-                          child: Icon(
-                            Icons.person,
-                            size: 190,
-                            color: Colors.grey.shade600,
-                          ),
                         ),
                       ),
-
-
-                    // Nom et coordonnées (sans l'email)
-                    Text(
-                      "${_userData['first_name'] ?? ''} ${_userData['last_name'] ?? ''}",
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _userData['phone_number'] ?? '',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black87,
-                      ),
-                    ),
-
-                    // Texte descriptif
-                    const SizedBox(height: 50),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24),
-                      child: Text(
-                        "Une route propre ne dépend pas seulement de l'éfficacité su service de nettoyage, mais de l'éducation des personnes qui passent par là.",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black54,
-                          height: 1.5,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 30),
-                      child: Text(
-                        "Pardon ne faites pas comme Dilane ",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black54,
-                          height: 1.5,
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-        );
+
+                // Photo de profil avec crayon de modification
+                Transform.translate(
+                  offset: const Offset(0, -50),
+                  child: CircleAvatar(
+                    radius: 95,
+                    backgroundColor: Colors.grey.shade300,
+                    child: Icon(
+                      Icons.person,
+                      size: 190,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ),
+
+                // Nom et coordonnées (sans l'email)
+                Text(
+                  "${_userData['first_name'] ?? ''} ${_userData['last_name'] ?? ''}",
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _userData['phone_number'] ?? '',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                // Texte descriptif
+                const SizedBox(height: 50),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    "Une route propre ne dépend pas seulement de l'éfficacité su service de nettoyage, mais de l'éducation des personnes qui passent par là.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  child: Text(
+                    "Pardon ne faites pas comme Dilane ",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+    );
   }
 }
