@@ -11,7 +11,7 @@ class ReportingService {
   final String baseUrl = "$server/api/reporting";
   final AuthentificationService authService = AuthentificationService();
 
-  Future<String> createReporting(
+  Future<Map?> createReporting(
       String description, File image, LatLng location) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try {
@@ -36,8 +36,11 @@ class ReportingService {
       request.files.add(await http.MultipartFile.fromPath('image', image.path));
       final response = await request.send();
       if (response.statusCode == 201) {
-        // final data = json.decode(await response.stream.bytesToString());
-        return "Signalement pris en compte.";
+        final data = json.decode(await response.stream.bytesToString());
+        return {
+          "message": "Signalement pris en compte.",
+          "reporting": data,
+        };
       } else if (response.statusCode == 400) {
         final data = json.decode(await response.stream.bytesToString());
         print("Données reçues : $data");
@@ -54,10 +57,9 @@ class ReportingService {
         throw Exception(response.reasonPhrase);
       }
     } catch (e) {
-      print(e);
       throw Exception("$e");
     }
-    return "";
+    return null;
   }
 
   Future<List<dynamic>?> getReportingList() async {
@@ -67,7 +69,7 @@ class ReportingService {
       if (authToken == null || authToken.isEmpty) {
         throw Exception("Vous devez vous authentifiez");
       }
-      String uri = "$baseUrl/list/";
+      String uri = "$baseUrl/my/";
       final response = await http.get(
         Uri.parse(uri),
         headers: {

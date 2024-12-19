@@ -135,6 +135,7 @@ class _BaseLayoutState extends State<BaseLayout> {
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,
+        physics: const NeverScrollableScrollPhysics(),
         children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
