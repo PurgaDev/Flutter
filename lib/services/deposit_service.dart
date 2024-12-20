@@ -69,6 +69,13 @@ Future<String> getUserRole() async {
   return userData?['role'] ?? 'citizen'; // Rôle par défaut
 }
 
+Future<int?> getUserId() async {
+  final userService = UserService();
+  final userData = await userService.loadUserData();
+  return userData?['pk']; // Retourne la clé primaire de l'utilisateur
+}
+
+
 // Fonction pour récupérer les itinéraires optimisés pour les chauffeurs
 Future<List<List<LatLng>>> fetchRoutes() async {
   final String url = '$server/api/deposit/optimize/';
@@ -77,6 +84,11 @@ Future<List<List<LatLng>>> fetchRoutes() async {
 
   if (token == null || token.isEmpty) {
     throw Exception('Token d\'authentification manquant. Veuillez vous reconnecter.');
+  }
+
+  final int? userId = await getUserId(); // Récupération de l'identifiant utilisateur
+  if (userId == null) {
+    throw Exception('Identifiant utilisateur introuvable.');
   }
 
   final response = await http.get(
@@ -92,14 +104,20 @@ Future<List<List<LatLng>>> fetchRoutes() async {
 
     List<List<LatLng>> routes = [];
     for (var route in data) {
-      List<LatLng> points = (route['coordinates'] as List)
-          .map((point) => LatLng(point['lat'], point['lng']))
-          .toList();
+      // Filtrer les itinéraires pour le chauffeur connecté
+      if (route['driver_id'] == userId) {
+        List<LatLng> points = (route['coordinates'] as List)
+            .map((point) => LatLng(point['latitude'], point['longitude']))
+            .toList();
 
-      routes.add(points);
+        routes.add(points);
+      }
     }
+
     return routes;
   } else {
     throw Exception('Erreur ${response.statusCode} : ${response.reasonPhrase}');
   }
 }
+
+
