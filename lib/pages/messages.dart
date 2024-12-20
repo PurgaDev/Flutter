@@ -96,7 +96,7 @@ class _MessagePageState extends State<MessagePage> {
           ),
         ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 199, 221, 197),
+        backgroundColor: const Color.fromARGB(255, 80, 156, 73),
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF235F4E)),
       ),

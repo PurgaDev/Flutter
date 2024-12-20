@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:purga/pages/verification.dart';
 import 'package:purga/services/authentification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:purga/pages/login.dart';
@@ -52,7 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
         await prefs!.setString("user_phone_number", _phoneNumber);
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const VerificationScreen()),
+          MaterialPageRoute(builder: (context) => const LoginPage()),
         );
       } else {
         throw Exception("L'enregistrement a échoué.");
