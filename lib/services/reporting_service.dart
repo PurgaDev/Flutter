@@ -41,7 +41,8 @@ class ReportingService {
           "message": "Signalement pris en compte.",
           "reporting": data,
         };
-      } else if (response.statusCode == 400) {
+      } 
+      else if (response.statusCode == 400) {
         final data = json.decode(await response.stream.bytesToString());
         print("Données reçues : $data");
         if (data.containsKey('message')) {
@@ -80,7 +81,8 @@ class ReportingService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return List.of(data);
-      } else if (response.statusCode == 401) {
+      } 
+      else if (response.statusCode == 401) {
         authService.refreshToken();
         return await getReportingList();
       } else {
