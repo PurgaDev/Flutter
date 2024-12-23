@@ -7,12 +7,14 @@ import 'package:purga/services/user_service.dart';
 
 // Modèle de dépôt
 class Deposit {
+  final int id;
   final double latitude;
   final double longitude;
   final String description;
   final bool cleaned;
 
   Deposit({
+    required this.id,
     required this.latitude,
     required this.longitude,
     required this.description,
@@ -22,6 +24,7 @@ class Deposit {
   // Factory pour convertir un JSON en objet Deposit
   factory Deposit.fromJson(Map<String, dynamic> json) {
     return Deposit(
+      id: json['id'],
       latitude: json['latitude'],
       longitude: json['longitude'],
       description: json['description'] ?? '',
@@ -115,6 +118,31 @@ Future<List<List<LatLng>>> fetchRoutes() async {
     }
 
     return routes;
+  } else {
+    throw Exception('Erreur ${response.statusCode} : ${response.reasonPhrase}');
+  }
+
+}
+
+Future<Map<String, dynamic>> markDepositAsCleaned({
+  required int driverId,
+  required int depositId,
+}) async {
+  final String url = '$server/api/deposit/createclean/';
+
+  final response = await http.post(
+    Uri.parse(url),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode({
+      'driver_id': driverId,
+      'id': depositId,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
   } else {
     throw Exception('Erreur ${response.statusCode} : ${response.reasonPhrase}');
   }

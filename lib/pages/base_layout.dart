@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:purga/model/user.dart';
+import 'package:purga/pages/deposit.dart'; 
 import 'package:purga/pages/reporting_page.dart';
-import 'package:purga/pages/waste_management.dart';
 import 'package:purga/pages/profile.dart';
+import 'package:purga/pages/waste_management.dart';
 import 'package:purga/services/user_service.dart';
 import 'package:purga/pages/messages.dart';
 
@@ -16,12 +17,8 @@ class BaseLayout extends StatefulWidget {
 class _BaseLayoutState extends State<BaseLayout> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
-  final List<Widget> _pages = [
-    const MapScreen(),
-    const ReportingPage(),
-    const ProfilePage(),
-  ];
-
+  late List<Widget> _pages;
+  late List<BottomNavigationBarItem> _bottomNavItems;
   User? user; // Contiendra les informations utilisateur
 
   @override
@@ -37,6 +34,7 @@ class _BaseLayoutState extends State<BaseLayout> {
     if (userData != null) {
       setState(() {
         user = User.fromJson(userData);
+        _initializeLayout(); // Initialiser le layout après avoir récupéré l'utilisateur
       });
     } else {
       await fetchUserData();
@@ -50,7 +48,62 @@ class _BaseLayoutState extends State<BaseLayout> {
     if (userData != null) {
       setState(() {
         user = User.fromJson(userData);
+        _initializeLayout(); // Initialiser le layout après avoir récupéré l'utilisateur
       });
+    }
+  }
+
+  /// Initialise les pages et les onglets en fonction du rôle de l'utilisateur
+  void _initializeLayout() {
+    if (user?.role == 'driver') {
+      // Configuration pour les chauffeurs
+      _pages = [
+        const MapScreen(),
+        const DepositView(), 
+        const ReportingPage(), 
+        const ProfilePage(),
+      ];
+
+      _bottomNavItems = const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home, size: 30),
+          label: '',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.local_shipping, size: 30), // Icône pour les dépôts
+          label: '',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.list, size: 30), // Icône pour les rapports
+          label: '',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.account_circle, size: 30),
+          label: '',
+        ),
+      ];
+    } else {
+      // Configuration pour les citoyens ou autres rôles
+      _pages = [
+        const MapScreen(),
+        const ReportingPage(), // Page de rapport pour les citoyens
+        const ProfilePage(),
+      ];
+
+      _bottomNavItems = const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home, size: 30),
+          label: '',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.list, size: 30), // Icône pour les rapports
+          label: '',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.account_circle, size: 30),
+          label: '',
+        ),
+      ];
     }
   }
 
@@ -77,7 +130,7 @@ class _BaseLayoutState extends State<BaseLayout> {
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
-      appBar: _selectedIndex == 2
+      appBar: _selectedIndex == (_pages.length - 1)
           ? null
           : AppBar(
               backgroundColor: Colors.white,
@@ -139,20 +192,7 @@ class _BaseLayoutState extends State<BaseLayout> {
         children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home, size: 30),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list, size: 30),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle, size: 30),
-            label: '',
-          ),
-        ],
+        items: _bottomNavItems, // Utiliser la liste des items en fonction du rôle
         currentIndex: _selectedIndex,
         onTap: _onTabTapped,
         showSelectedLabels: false,
