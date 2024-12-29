@@ -272,7 +272,7 @@ class _ReportingPageState extends State<ReportingPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    "Mes signalement",
+                    "Mes signalements",
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
