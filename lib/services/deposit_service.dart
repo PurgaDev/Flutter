@@ -42,7 +42,8 @@ Future<List<Deposit>> fetchDeposits() async {
     final String? token = prefs.getString('user_auth_token');
 
     if (token == null || token.isEmpty) {
-      throw Exception('Token d\'authentification manquant. Veuillez vous reconnecter.');
+      throw Exception(
+          'Token d\'authentification manquant. Veuillez vous reconnecter.');
     }
 
     final response = await http.get(
@@ -57,7 +58,8 @@ Future<List<Deposit>> fetchDeposits() async {
       final List<dynamic> data = json.decode(response.body);
       return data.map((json) => Deposit.fromJson(json)).toList();
     } else {
-      throw Exception('Erreur ${response.statusCode} : ${response.reasonPhrase}');
+      throw Exception(
+          'Erreur ${response.statusCode} : ${response.reasonPhrase}');
     }
   } catch (e) {
     print('Erreur lors de la récupération des dépôts : $e');
@@ -78,7 +80,6 @@ Future<int?> getUserId() async {
   return userData?['pk']; // Retourne la clé primaire de l'utilisateur
 }
 
-
 // Fonction pour récupérer les itinéraires optimisés pour les chauffeurs
 Future<List<List<LatLng>>> fetchRoutes() async {
   final String url = '$server/api/deposit/optimize/';
@@ -86,10 +87,12 @@ Future<List<List<LatLng>>> fetchRoutes() async {
   final String? token = prefs.getString('user_auth_token');
 
   if (token == null || token.isEmpty) {
-    throw Exception('Token d\'authentification manquant. Veuillez vous reconnecter.');
+    throw Exception(
+        'Token d\'authentification manquant. Veuillez vous reconnecter.');
   }
 
-  final int? userId = await getUserId(); // Récupération de l'identifiant utilisateur
+  final int? userId =
+      await getUserId(); // Récupération de l'identifiant utilisateur
   if (userId == null) {
     throw Exception('Identifiant utilisateur introuvable.');
   }
@@ -104,8 +107,8 @@ Future<List<List<LatLng>>> fetchRoutes() async {
 
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body);
-
     List<List<LatLng>> routes = [];
+
     for (var route in data) {
       // Filtrer les itinéraires pour le chauffeur connecté
       if (route['driver_id'] == userId) {
@@ -121,7 +124,6 @@ Future<List<List<LatLng>>> fetchRoutes() async {
   } else {
     throw Exception('Erreur ${response.statusCode} : ${response.reasonPhrase}');
   }
-
 }
 
 Future<Map<String, dynamic>> markDepositAsCleaned({
@@ -147,5 +149,3 @@ Future<Map<String, dynamic>> markDepositAsCleaned({
     throw Exception('Erreur ${response.statusCode} : ${response.reasonPhrase}');
   }
 }
-
-
