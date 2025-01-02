@@ -15,17 +15,16 @@ class AuthentificationService {
 
       if (response.statusCode == 200) {
         return true;
-      }
-      else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         final AuthentificationService authService = AuthentificationService();
         authService.refreshToken();
         return await sendPhoneNumber(phoneNumber);
-      } 
-       else {
+      } else {
+        print("$phoneNumber ${response.body}");
         throw Exception(response.reasonPhrase);
       }
     } catch (e) {
-      throw Exception("Erreur reseau: $e");
+      throw Exception("$e");
     }
   }
 
@@ -47,13 +46,11 @@ class AuthentificationService {
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           return data['access'];
-        }
-        else if (response.statusCode == 401) {
-        final AuthentificationService authService = AuthentificationService();
-        authService.refreshToken();
-        return await verifyOtpCode(phoneNumber,otp);
-      } 
-         else {
+        } else if (response.statusCode == 401) {
+          final AuthentificationService authService = AuthentificationService();
+          authService.refreshToken();
+          return await verifyOtpCode(phoneNumber, otp);
+        } else {
           throw Exception(response.reasonPhrase);
         }
       } else {
@@ -71,14 +68,13 @@ class AuthentificationService {
       final requestBody = {
         'first_name': firstname,
         'last_name': lastname,
-        'phone_number': phoneNumber,
+        'phone_number': "+237$phoneNumber",
       };
 
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
         },
         body: jsonEncode(requestBody),
       );
@@ -86,20 +82,26 @@ class AuthentificationService {
       if (response.statusCode == 200) {
         print('Enregistrement réussi : ${response.body}');
         return true;
-      } 
-      else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         final AuthentificationService authService = AuthentificationService();
         authService.refreshToken();
-        return await register(firstname,lastname,phoneNumber);
-      } 
-      else {
+        return await register(firstname, lastname, phoneNumber);
+      } else if (response.statusCode == 400) {
+        Map<String, dynamic> data = await json.decode(response.body);
+        if (data.containsKey("phone_number")) {
+          throw Exception(data['phone_number'][0]);
+        }
+      } else {
         print('Erreur serveur : ${response.reasonPhrase}');
-        return false; // Retourne false en cas d'erreur serveur
+        print(response.body);
+        throw Exception(
+            '${response.reasonPhrase}'); // Retourne false en cas d'erreur serveur
       }
     } catch (e) {
       print('Erreur réseau : $e');
-      throw Exception("Erreur réseau : $e");
+      throw Exception("$e");
     }
+    return true;
   }
 
   Future<void> refreshToken() async {
@@ -114,13 +116,11 @@ class AuthentificationService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         await prefs.setString("user_auth_token", data['access']);
-      } 
-      else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         final AuthentificationService authService = AuthentificationService();
         authService.refreshToken();
         return await refreshToken();
-      } 
-      else {}
+      } else {}
     } catch (e) {}
   }
 
@@ -144,5 +144,4 @@ class AuthentificationService {
       throw Exception("Erreur lors de la déconnexion.");
     }
   }
-
 }
