@@ -19,16 +19,14 @@ class _DepositViewState extends State<DepositView> {
     _depositsFuture = _loadDeposits();
   }
 
-  // Charger les dépôts liés au chauffeur
   Future<List<Deposit>> _loadDeposits() async {
     final role = await getUserRole();
     if (role != 'driver') {
-      throw Exception("Seuls les chauffeurs ont accès à cette vue.");
+      throw Exception("Seuls les chauffeurs peuvent accéder.");
     }
     return await fetchDeposits();
   }
 
-  // Marquer un dépôt comme nettoyé
   Future<void> _markAsCleaned(int depositId) async {
     setState(() {
       isLoading = true;
@@ -40,25 +38,22 @@ class _DepositViewState extends State<DepositView> {
         throw Exception("Utilisateur non authentifié.");
       }
 
-      // Appel API pour marquer comme nettoyé
       final response = await markDepositAsCleaned(driverId: userId, depositId: depositId);
 
       if (response['status'] == 'ok') {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Dépôt marqué comme nettoyé.'),
-        ));
-
-        // Recharger les dépôts après la mise à jour
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Depot marqué comme nettoyé.')),
+        );
         setState(() {
           _depositsFuture = _loadDeposits();
         });
       } else {
-        throw Exception("Erreur lors du marquage comme nettoyé.");
+        throw Exception("Error lors du traitement.");
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Erreur : $e'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     } finally {
       setState(() {
         isLoading = false;
@@ -70,7 +65,7 @@ class _DepositViewState extends State<DepositView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dépôts Assignés'),
+        title: const Text('Depots Assignés'),
       ),
       body: FutureBuilder<List<Deposit>>(
         future: _depositsFuture,
@@ -78,31 +73,66 @@ class _DepositViewState extends State<DepositView> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Erreur : ${snapshot.error}'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, color: Colors.red, size: 50),
+                  const SizedBox(height: 10),
+                  Text('Error: ${snapshot.error}', textAlign: TextAlign.center),
+                ],
+              ),
+            );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Aucun dépôt assigné.'));
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.inbox, color: Colors.grey, size: 50),
+                  SizedBox(height: 10),
+                  Text('Aucun depot assigné', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                ],
+              ),
+            );
           }
 
           final deposits = snapshot.data!;
           return ListView.builder(
+            padding: const EdgeInsets.all(10),
             itemCount: deposits.length,
             itemBuilder: (context, index) {
               final deposit = deposits[index];
               return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: ListTile(
-                  leading: const Icon(Icons.location_on),
-                  title: Text(deposit.description),
+                  leading: Icon(Icons.location_on, color: deposit.cleaned ? Colors.green : Colors.red),
+                  title: Text(
+                    deposit.description,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(
-                      'Lat: ${deposit.latitude}, Lng: ${deposit.longitude}, Nettoyé: ${deposit.cleaned ? "Oui" : "Non"}'),
+                    'Lat: ${deposit.latitude}, Lng: ${deposit.longitude}\nCleaned: ${deposit.cleaned ? "Yes" : "No"}',
+                    style: const TextStyle(color: Colors.grey),
+                  ),
                   trailing: deposit.cleaned
                       ? const Icon(Icons.check, color: Colors.green)
                       : ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                           onPressed: isLoading
                               ? null
                               : () {
                                   _markAsCleaned(deposit.id);
                                 },
-                          child: const Text('Marquer comme nettoyé'),
+                          child: const Text('Marquer comme Nettoyé'),
                         ),
                 ),
               );
