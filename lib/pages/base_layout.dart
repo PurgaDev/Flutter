@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:purga/model/user.dart';
-import 'package:purga/pages/deposit.dart'; 
+import 'package:purga/pages/deposit.dart';
 import 'package:purga/pages/reporting_page.dart';
 import 'package:purga/pages/profile.dart';
 import 'package:purga/pages/waste_management.dart';
@@ -17,7 +17,7 @@ class BaseLayout extends StatefulWidget {
 class _BaseLayoutState extends State<BaseLayout> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
-  late List<Widget> _pages;
+  late List<Widget> _pages = [];
   late List<BottomNavigationBarItem> _bottomNavItems;
   User? user; // Contiendra les informations utilisateur
 
@@ -59,14 +59,17 @@ class _BaseLayoutState extends State<BaseLayout> {
       // Configuration pour les chauffeurs
       _pages = [
         const MapScreen(),
-        const DepositView(), 
-        const ReportingPage(), 
+        const DepositView(),
+        const ReportingPage(),
         const ProfilePage(),
       ];
 
       _bottomNavItems = const [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home, size: 30),
+          icon: Icon(
+            Icons.home,
+            size: 30,
+          ),
           label: '',
         ),
         BottomNavigationBarItem(
@@ -192,11 +195,14 @@ class _BaseLayoutState extends State<BaseLayout> {
         children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: _bottomNavItems, // Utiliser la liste des items en fonction du rôle
+        items:
+            _bottomNavItems, // Utiliser la liste des items en fonction du rôle
         currentIndex: _selectedIndex,
         onTap: _onTabTapped,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        unselectedItemColor: Theme.of(context).colorScheme.onSurface,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
       ),
     );
   }

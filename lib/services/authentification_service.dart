@@ -28,7 +28,8 @@ class AuthentificationService {
     }
   }
 
-  Future<String> verifyOtpCode(String phoneNumber, String otp) async {
+  Future<Map<String, String>> verifyOtpCode(
+      String phoneNumber, String otp) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/login/verification/'),
@@ -45,15 +46,17 @@ class AuthentificationService {
         );
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
-          return data['access'];
+          return {'access': data['access'], 'refresh': data['refresh']};
         } else if (response.statusCode == 401) {
           final AuthentificationService authService = AuthentificationService();
           authService.refreshToken();
           return await verifyOtpCode(phoneNumber, otp);
         } else {
+          print(response.body);
           throw Exception(response.reasonPhrase);
         }
       } else {
+        print(response.body);
         throw Exception(response.reasonPhrase);
       }
     } catch (e) {
@@ -93,7 +96,7 @@ class AuthentificationService {
         }
       } else {
         print('Erreur serveur : ${response.reasonPhrase}');
-        print(response.body);
+        print(response.headers);
         throw Exception(
             '${response.reasonPhrase}'); // Retourne false en cas d'erreur serveur
       }
@@ -127,20 +130,24 @@ class AuthentificationService {
   Future<void> logoutUser() async {
     final prefs = await SharedPreferences.getInstance();
     final String? authToken = prefs.getString("user_auth_token");
+    final String? refreshToken = prefs.getString("auth_refresh_token");
     final String apiUrl = "$server/api/user/logout/";
 
-    if (authToken == null) {
+    if (authToken == null || refreshToken == null) {
       throw Exception("Vous devez vous authentifier.");
     }
 
     final response = await http.post(
       Uri.parse(apiUrl),
+      body: {"refresh_token": refreshToken},
       headers: {'Authorization': 'Bearer $authToken'},
     );
 
     if (response.statusCode == 200) {
+      await prefs.setString("user_auth_token", "");
       await prefs.remove("user_auth_token");
     } else {
+      print(response.body);
       throw Exception("Erreur lors de la déconnexion.");
     }
   }

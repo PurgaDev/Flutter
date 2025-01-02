@@ -9,7 +9,6 @@ void main() async {
   // verification du token
   final prefs = await SharedPreferences.getInstance();
   final String? authToken = prefs.getString("user_auth_token");
-
   runApp(
     MyApp(isAuthenticated: authToken != null && authToken.isNotEmpty),
   );

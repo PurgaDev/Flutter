@@ -82,7 +82,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
     try {
       final token = await _authService.verifyOtpCode(phoneNumber, _optCode);
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString("user_auth_token", token);
+      await prefs.setString("user_auth_token", token['access']!);
+      await prefs.setString("auth_refresh_token", token['refresh']!);
 
       Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => BaseLayout()),
